@@ -2,9 +2,11 @@
 
 ## 1.1 wasmer-python
 
-[This](https://github.com/wasmerio/wasmer-python) repo is
+[This repo](https://github.com/wasmerio/wasmer-python) is a complete and mature WebAssembly runtime for Python based on Wasmer. It use Rust to implement the python bindings.
 
 ## 1.2 wasmtime-py
+
+[This repo](https://github.com/bytecodealliance/wasmtime-py/tree/af5cfe1e21aebe17ff5517503896b8b92fb9879c) provides a embedded python library of Wastime. It primarily use python `ctypes` library to implement the python bindings.
 
 # 2. Python Bindings
 A simple tutorial can be find [here](https://realpython.com/python-bindings-overview/) Sample code can be find in this [directory](./python-bindings)
@@ -94,7 +96,63 @@ PyBind11 is modeled after the Boost::Python library and has a similar interface.
 
 Basic usage:
 
+- The tool you use to `build the Python bindings` in PyBind11 is the` C++ compiler` itself. You may need to modify the defaults for your compiler and operating system.
 
+- Similar to the CFFI example above, once you’ve done the heavy lifting of creating the Python bindings, calling your function looks like normal Python code
+
+Pros and cons:
+
+PyBind11 is `focused on C++` instead of C, which makes it different from ctypes and CFFI. It has several features that make it quite attractive for C++ libraries:
+
+- It supports classes.
+- It handles polymorphic subclassing.
+- It allows you to add dynamic attributes to objects from Python and many other tools, which would be quite difficult to do from the C-based tools you’ve examined.
+
+That being said, there’s a fair bit of `setup` and `configuration` you need to do to get PyBind11 up and running. Getting the installation and build correct can be a bit finicky, but once that’s done, it seems fairly solid. Also, PyBind11 requires that you use at least `C++11 or newer`. This is unlikely to be a big restriction for most projects, but it may be a consideration for you.
+
+Finally, the `extra code` you need to write to create the `Python bindings` is `in C++` and not Python. This may or may not be an issue for you, but it is different than the other tools you’ve looked at here. In the next section, you’ll move on to Cython, which takes quite a different approach to this problem.
+
+### 2.2.5 Cython
+
+The approach Cython takes to creating Python bindings uses a `Python-like language` to define the `bindings` and then generates C or C++ code that can be compiled into the module. There are several methods for building Python bindings with Cython. The most common one is to use setup from distutils. For this example, you’ll stick with the invoke tool, which will allow you to play with the exact commands that are run.
+
+Basic usage:
+
+- The most common form of declaring a module in Cython is to use a `.pyx file`
+- The build process for Cython has similarities to the one you used for PyBind11. You first run `Cython` on the `.pyx file` to `generate a .cpp file`. Once you’ve done this, you compile it like you did in PyBind11. Once the C++ file is generated, you use the C++ compiler to generate the Python bindings, just as you did for PyBind11.
+
+Pros and cons:
+Cython is a relatively `complex tool` that can provide you a `deep level of control` when creating Python bindings for either C or C++. Though you didn’t cover it in depth here, it provides a Python-esque method for writing code that manually controls the GIL, which can significantly speed up certain types of problems.
+
+That `Python-esque language` is `not quite Python`, however, so there’s a slight learning curve when you’re coming up to speed in figuring out which parts of C and Python fit where.
+
+### 2.2.6 Other Solutions
+
+PyBindGen
+
+PyBindGen generates Python bindings for C or C++ and is written in Python. It’s targeted at producing readable C or C++ code, which should simplify debugging issues. It wasn’t clear if this has been updated recently, as the documentation lists Python 3.4 as the latest tested version. There have been yearly releases for the last several years, however.
+
+Boost.Python
+
+Boost.Python has an interface similar to PyBind11, which you saw above. That’s not a coincidence, as PyBind11 was based on this library! Boost.Python is written in full C++ and supports most, if not all, versions of C++ on most platforms. In contrast, PyBind11 restricts itself to modern C++.
+
+SIP
+
+SIP is a toolset for generating Python bindings that was developed for the PyQt project. It’s also used by the wxPython project to generate their bindings, as well. It has a code generation tool and an extra Python module that provides support functions for the generated code.
+
+Cppyy
+
+cppyy is an interesting tool that has a slightly different design goal than what you’ve seen so far. In the words of the package author:
+
+“The original idea behind cppyy (going back to 2001), was to allow Python programmers that live in a C++ world access to those C++ packages, without having to touch C++ directly (or wait for the C++ developers to come around and provide bindings).” (Source)
+
+Shiboken
+
+Shiboken is a tool for generating Python bindings that’s developed for the PySide project associated with the Qt project. While it was designed as a tool for that project, the documentation indicates that it’s neither Qt- nor PySide-specific and is usable for other projects.
+
+SWIG
+
+SWIG is a different tool than any of the others listed here. It’s a general tool used to create bindings to C and C++ programs for many other languages, not just Python. This ability to generate bindings for different languages can be quite useful in some projects. It, of course, comes with a cost as far as complexity is concerned.
 
 # 3. APIs
 
